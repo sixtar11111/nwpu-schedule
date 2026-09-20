@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>2026-2027 秋季学期课程表</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#f4f7ff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="我的课表">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>
+:root{
+  --bg:#f4f7ff; --card:#fff; --text:#172033; --muted:#8790a2;
+  --line:#e7ebf2; --blue:#3567df;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+  font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif}
+body{min-height:100vh}
+.app{width:100%;max-width:980px;margin:auto;padding:10px 8px 14px}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  margin-bottom:8px
+}
+.titlebox{min-width:0}
+.school{font-size:11px;color:#3567df;font-weight:700;margin-bottom:2px}
+h1{font-size:18px;line-height:1.2;margin:0;white-space:nowrap}
+.summary{font-size:11px;color:var(--muted);margin-top:3px}
+select{
+  flex:0 0 auto;border:1px solid #dfe5ef;background:#fff;color:#1f2937;
+  border-radius:10px;padding:7px 8px;font-size:12px;font-weight:700;
+  box-shadow:0 3px 12px rgba(38,55,90,.06)
+}
+
+/* Entire week fits in one screen width: no horizontal scrolling */
+.timetable{
+  width:100%;
+  display:grid;
+  grid-template-columns:34px repeat(7,minmax(0,1fr));
+  grid-template-rows:44px repeat(13,34px);
+  border:1px solid var(--line);
+  border-radius:16px;
+  overflow:hidden;
+  background:#fff;
+  box-shadow:0 8px 24px rgba(43,58,95,.08);
+  position:relative;
+}
+.cell{
+  border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  background:#fff;
+}
+.corner{
+  grid-column:1;grid-row:1;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;color:var(--muted);font-weight:700;
+  border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  background:#f9fbff;
+}
+.day{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;background:#f9fbff;
+  border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  min-width:0;
+}
+.day .w{font-size:11px;font-weight:800;line-height:1.05}
+.day .d{font-size:8px;color:var(--muted);margin-top:3px;white-space:nowrap}
+.day.today{background:#eaf1ff}
+.day.today .w{color:var(--blue)}
+.period{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  background:#fbfcff;z-index:1
+}
+.period b{font-size:8px;line-height:1}
+.period span{font-size:6.5px;color:#9aa3b3;margin-top:2px;line-height:1}
+
+/* Compact cards: keep course name + room visible */
+.course{
+  z-index:5;
+  margin:2px;
+  border-radius:8px;
+  padding:4px 3px;
+  overflow:hidden;
+  box-shadow:0 3px 8px rgba(53,70,110,.10);
+  border:1px solid rgba(255,255,255,.65);
+  display:flex;flex-direction:column;justify-content:center;
+  min-width:0;
+}
+.course .name{
+  font-size:8.5px;font-weight:800;line-height:1.12;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
+  overflow:hidden;word-break:break-all;
+}
+.course .room{
+  font-size:7px;line-height:1.15;margin-top:3px;opacity:.86;
+  white-space:normal;word-break:break-all
+}
+.c1{background:linear-gradient(135deg,#dce9ff,#cbdcff);color:#244c9b}
+.c2{background:linear-gradient(135deg,#dff7ec,#c8f0df);color:#17614a}
+.c3{background:linear-gradient(135deg,#ffe8d8,#ffd7bd);color:#93451f}
+.c4{background:linear-gradient(135deg,#efe5ff,#dfcffd);color:#6842a4}
+.c5{background:linear-gradient(135deg,#fff0cc,#ffe3a3);color:#866019}
+.c6{background:linear-gradient(135deg,#ffdfe7,#ffcbd8);color:#8d3450}
+
+.hint{
+  text-align:center;font-size:9px;color:#98a1b2;margin-top:7px
+}
+
+/* On wider screens we can enlarge slightly while still showing 7 days */
+@media(min-width:700px){
+  .app{padding:18px}
+  h1{font-size:25px}
+  .school,.summary{font-size:13px}
+  select{font-size:14px;padding:9px 12px}
+  .timetable{
+    grid-template-columns:54px repeat(7,minmax(0,1fr));
+    grid-template-rows:58px repeat(13,46px);
+  }
+  .day .w{font-size:14px}.day .d{font-size:10px}
+  .period b{font-size:10px}.period span{font-size:8px}
+  .course{padding:6px}
+  .course .name{font-size:11px}
+  .course .room{font-size:9px}
+}
+@media print{
+  body{background:#fff}.app{max-width:none}.hint{display:none}
+  .timetable{box-shadow:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="titlebox">
+      <div class="school">西北工业大学 · 友谊校区</div>
+      <h1>2026–2027 秋季学期课程表</h1>
+      <div class="summary" id="summary"></div>
+    </div>
+    <select id="weekSelect" aria-label="选择周次"></select>
+  </div>
+
+  <div class="timetable" id="table"></div>
+  <div class="hint">已压缩为一屏宽度：无需左右滑动 · 课程卡片保留“课程名称 + 上课地点”</div>
+</div>
+
+<script>
+const semesterStart=new Date(2026,7,31);
+const semesterWeeks=20;
+const dayNames=["一","二","三","四","五","六","日"];
+
+const courses=[
+{name:"机器学习与人工智能",day:4,start:11,end:13,weeks:[3,4,5,6,7,8,9,10,11],room:"西馆XB105",cls:"c1"},
+{name:"空气动力学基础",day:5,start:7,end:10,weeks:[3,4,5,6,7,8,9,10,11,12,13,14,15],room:"西馆XA401",cls:"c2"},
+{name:"CFD工程应用及软件介绍",day:6,start:1,end:4,weeks:[2,3,4,5,6,7,8,9],room:"西馆XA105",cls:"c3"},
+{name:"CFD工程应用及软件介绍",day:6,start:1,end:4,weeks:[10,11],room:"西馆XA103",cls:"c3"},
+{name:"计算流体力学",day:2,start:7,end:10,weeks:[4,5,6,7,8,9,10,11,12,13],room:"航宇楼231",cls:"c4"},
+{name:"数值分析",day:3,start:3,end:4,weeks:[3,4,5,6,7,8,9,10,11,12,13,14],room:"西馆XB105",cls:"c5"},
+{name:"中国式现代化的理论与实践",day:2,start:3,end:4,weeks:[2,3,4,5,6,7,8],room:"西馆XB204",cls:"c6"},
+{name:"中国式现代化的理论与实践",day:4,start:3,end:4,weeks:[2,3,4,5,6,7,8],room:"西馆XB204",cls:"c6"}
+];
+
+const summer=[
+["08:00","08:50"],["09:00","09:50"],["10:10","11:00"],["11:10","12:00"],
+["12:20","13:05"],["13:05","13:50"],["14:30","15:20"],["15:30","16:20"],
+["16:40","17:30"],["17:40","18:30"],["19:30","20:20"],["20:30","21:20"],["",""]
+];
+const winter=[
+["08:00","08:50"],["09:00","09:50"],["10:10","11:00"],["11:10","12:00"],
+["12:20","13:05"],["13:05","13:50"],["14:00","14:50"],["15:00","15:50"],
+["16:10","17:00"],["17:10","18:00"],["19:00","19:50"],["20:00","20:50"],["",""]
+];
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+function fmt(d){return `${d.getMonth()+1}/${d.getDate()}`}
+function same(a,b){return a.getFullYear()==b.getFullYear()&&a.getMonth()==b.getMonth()&&a.getDate()==b.getDate()}
+function currentWeek(){
+  const n=Math.floor((new Date()-semesterStart)/604800000)+1;
+  return n>=1&&n<=semesterWeeks?n:1
+}
+function timesFor(w){
+  return addDays(semesterStart,(w-1)*7)<new Date(2026,9,1)?summer:winter
+}
+
+const sel=document.getElementById("weekSelect");
+for(let i=1;i<=semesterWeeks;i++){
+  const o=document.createElement("option");o.value=i;o.textContent=`第${i}周`;sel.appendChild(o)
+}
+sel.value=currentWeek();
+
+function render(){
+  const w=+sel.value, mon=addDays(semesterStart,(w-1)*7), sun=addDays(mon,6), now=new Date();
+  document.getElementById("summary").textContent=`第${w}周 · ${mon.getFullYear()}年${mon.getMonth()+1}月${mon.getDate()}日—${sun.getMonth()+1}月${sun.getDate()}日`;
+  const table=document.getElementById("table");
+  table.innerHTML="";
+
+  const corner=document.createElement("div");
+  corner.className="corner";corner.textContent="节次";table.appendChild(corner);
+
+  for(let d=1;d<=7;d++){
+    const date=addDays(mon,d-1), el=document.createElement("div");
+    el.className="day"+(same(date,now)?" today":"");
+    el.style.gridColumn=String(d+1);el.style.gridRow="1";
+    el.innerHTML=`<div class="w">周${dayNames[d-1]}</div><div class="d">${fmt(date)}</div>`;
+    table.appendChild(el);
+  }
+
+  const ts=timesFor(w);
+  for(let p=1;p<=13;p++){
+    const pe=document.createElement("div");
+    pe.className="period";pe.style.gridColumn="1";pe.style.gridRow=String(p+1);
+    pe.innerHTML=`<b>${p}</b><span>${ts[p-1][0]}</span>`;
+    table.appendChild(pe);
+    for(let d=1;d<=7;d++){
+      const c=document.createElement("div");
+      c.className="cell";c.style.gridColumn=String(d+1);c.style.gridRow=String(p+1);
+      table.appendChild(c);
+    }
+  }
+
+  courses.filter(c=>c.weeks.includes(w)).forEach(c=>{
+    const el=document.createElement("div");
+    el.className=`course ${c.cls}`;
+    el.style.gridColumn=String(c.day+1);
+    el.style.gridRow=`${c.start+1} / ${c.end+2}`;
+    el.innerHTML=`<div class="name">${c.name}</div><div class="room">📍${c.room}</div>`;
+    table.appendChild(el);
+  });
+}
+sel.addEventListener("change",render);
+render();
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+}
+</script>
+</body>
+</html>
