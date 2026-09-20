@@ -1,0 +1,19 @@
+{
+  "name": "我的课表",
+  "short_name": "课表",
+  "description": "西北工业大学 2026-2027 秋季学期个人课表",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#3267e3",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
